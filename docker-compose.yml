@@ -1,0 +1,85 @@
+version: "3"
+
+services:
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - 27017:27017
+    volumes:
+      - ./config/mongodb:/data
+    
+  mongo-web:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: root
+      ME_CONFIG_MONGODB_URL: mongodb://root:root@mongo:27017/
+    volumes:
+      - ./config/mongo_web:/data
+
+  api-control:
+    depends_on:
+      - mongo
+    build:
+      context: .
+      dockerfile: ./api/control/Dockerfile
+    volumes:
+      - ./api/control:/app
+    ports:
+      - "5000:5000"
+
+  api-dashboard:
+    depends_on:
+      - mongo
+    build:
+      context: .
+      dockerfile: ./api/dashboard/Dockerfile
+    volumes:
+      - ./api/dashboard:/app
+    ports:
+      - "5001:5000"
+  
+  api-shop:
+    depends_on:
+      - mongo
+    build:
+      context: .
+      dockerfile: ./api/shop/Dockerfile
+    volumes:
+      - ./api/shop:/app
+    ports:
+      - "5002:5000"
+
+  admin:
+    build:
+      context: .
+      dockerfile: ./admin/Dockerfile
+    volumes:
+      - ./admin:/app
+    ports:
+      - "5003:5000"
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: ./dashboard/Dockerfile
+    volumes:
+      - ./dashboard:/app
+    ports:
+      - "5004:5000"
+   
+  shop:
+    build:
+      context: .
+      dockerfile: ./shop/Dockerfile
+    volumes:
+      - ./shop:/app
+    ports:
+      - "5005:5000"
